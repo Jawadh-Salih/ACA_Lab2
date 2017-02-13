@@ -87,10 +87,10 @@ void always_x(bool p) {
     }
 }
 void single_bit_predictor(){
-    //printf("%d\n", sizeof(bool));
 
+    // creating a BHT with the ability of keeping true or false.
     bool * BHT = (bool * )malloc(8192*sizeof(bool));
-    memset(BHT,false,8192);
+    memset(BHT,false,8192) // set all the allocated memory to false.
 
     bool prediction = false;
 
@@ -132,16 +132,19 @@ void single_bit_predictor(){
         BHT[index] = actual;
 
     }
-    free(BHT);
+    free(BHT);// free the dynamically allocated memory.
 
 
 }
 void two_bit_predictor() {
 
+    // creating a stuct to store 2-bits so that it can be taken to the 2-bit BHT.
     typedef struct two_bit {
         bool b1;
         bool b2;
     }two_Bit;
+
+    // creating and allocating memory with the total size of 8192.
     two_Bit *BHT = (struct two_bit *) malloc(4096 * sizeof(struct two_bit));
 
     memset(BHT,false,4096 * sizeof(struct two_bit));
@@ -170,6 +173,7 @@ void two_bit_predictor() {
 
         // making a 12 bit suffix.
         int index = addr & 0b111111111111;
+
         /* Do a prediction as it is in a state machine of 2 bits. */
 
         // only need to check the MSB to predict as it's
@@ -368,6 +372,7 @@ void two_two_bit_predictor(){
                 break;
 
         }
+        // setting the flag according to the Pattern identified by the previous 2 branches.
         flag = flag << 1;
         flag = flag | (actual?1:0);
         flag = flag % 4;
@@ -388,6 +393,7 @@ void custom_predictor(){
         bool b2;
     }two_Bit;
 
+
     int correlated_bits = 7;
     int bht_size =  8192;
     int bhts_size = 1;
@@ -397,6 +403,7 @@ void custom_predictor(){
     bht_size /= (bhts_size*2);
 
 
+    // Creating dynamic 2d array to have muslitple BHTs.
     two_Bit ** BHT = (struct two_bit **)malloc(sizeof(two_Bit *)*bhts_size);
 
     for(int i=0;i<bhts_size;i++){
@@ -431,23 +438,13 @@ void custom_predictor(){
                    "a state it shouldn't be called!\n");
         }
 
-//        if(p_addr ==0){
-//            p_addr = addr;
-//        }
-//        if(pp_addr == 0){
-//            pp_addr = p_addr;
-//        }
-        // making a 10 bit suffix.
+//
+        // making a k-bit suffix so that we can index the branch address in the array..
         int index  = addr & (bht_size-1);
 
 
-//        int p_index = p_addr & 0b1111111111;
-//        int pp_index = pp_addr & 0b1111111111;
-
-        /* Do a prediction as it is in a state machine of 2 bits. */
-        // first check for the branch histories.
-//        bool p = pred_BHT[p_index];
-//        bool pp = pred_BHT[pp_index];
+        /* Do a prediction as it is in a state machine of 2 bits. for the relevant BHT according the
+         * Pattern of previous 'n' branches (Default is 7)(flag)*/
         for(int i=0;i<bhts_size;i++){
             if(flag == i){
                 if(!BHT[i][index].b1)
@@ -487,7 +484,7 @@ void custom_predictor(){
             }
         }
 
-
+        // change the  BHT using the flag variable  by considering the Pattern of previous n-bits (Default is 7)
         flag = flag << 1;
         flag = flag | (actual?1:0);
         flag = flag % bhts_size;

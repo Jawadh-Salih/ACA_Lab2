@@ -389,7 +389,7 @@ void custom_predictor(){
     }two_Bit;
 
     int correlated_bits = 7;
-    int bht_size =  8192/2;
+    int bht_size =  8192;
     int bhts_size = 1;
     for(int i=1;i<=correlated_bits;i++){
         bhts_size *= 2;
